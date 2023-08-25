@@ -44,6 +44,7 @@ nlp = spacy.load("en_core_web_lg")
 
 #%%
 
+# read the stock data
 df1 = pd.read_csv("../data/clean/customer_data.csv")
 
 # %%
@@ -52,6 +53,7 @@ df1.dtypes
 
 # %%
 
+# initialize the dependent and independent features
 cols = [
     "CustomerID",
     "TimePeriod",
@@ -64,6 +66,7 @@ y
 
 # %%
 
+# impute missing values
 imp_constant = SimpleImputer(strategy="constant", fill_value="other")
 ohe = OneHotEncoder()
 imp_ohe = make_pipeline(imp_constant, ohe)
@@ -72,24 +75,23 @@ scaler = StandardScaler()
 imp_median_indicator = SimpleImputer(strategy="median", add_indicator=True)
 imp_median_scal = make_pipeline(imp_median_indicator, scaler)
 
+
+# create column transformer
 ct = make_column_transformer(
     (
         imp_ohe,
-        [
-            "Country",
-            "CustomerID"
-        ],
+        ["Country", "CustomerID"],
     ),
     (
         imp_median_scal,
-        [
-            "TimePeriod"
-        ],
+        ["TimePeriod"],
     ),
     remainder="passthrough",
 )
 
 # %%----------------------------------------------------------------
+
+# fit a linear regression model
 ct.fit_transform(X)
 
 
@@ -104,36 +106,59 @@ pipe.score(X, y)
 
 # %%
 
+# predict the sales for the subsequent periods
+
 df2 = pd.read_csv("../data/clean/df_custcountry.csv")
 df2["TimePeriod"] = 13
 
 df3 = pd.DataFrame(pipe.predict(df2))
-df3 = df3.rename(columns={0: "AvgQuantity", 1: "AvgUnitPrice", 2: "AvgRevenue", 3: "TotalQuantity", 4: "TotalRevenue"})
+df3 = df3.rename(
+    columns={
+        0: "AvgQuantity",
+        1: "AvgUnitPrice",
+        2: "AvgRevenue",
+        3: "TotalQuantity",
+        4: "TotalRevenue",
+    }
+)
 
 df4 = pd.concat([df2, df3], axis=1)
 
 df_withPred = pd.concat([df1, df4])
 
 
-
-
 df2 = pd.read_csv("../data/clean/df_custcountry.csv")
 df2["TimePeriod"] = 14
 
 df3 = pd.DataFrame(pipe.predict(df2))
-df3 = df3.rename(columns={0: "AvgQuantity", 1: "AvgUnitPrice", 2: "AvgRevenue", 3: "TotalQuantity", 4: "TotalRevenue"})
+df3 = df3.rename(
+    columns={
+        0: "AvgQuantity",
+        1: "AvgUnitPrice",
+        2: "AvgRevenue",
+        3: "TotalQuantity",
+        4: "TotalRevenue",
+    }
+)
 
 df4 = pd.concat([df2, df3], axis=1)
 
 df_withPred = pd.concat([df_withPred, df4])
 
 
-
 df2 = pd.read_csv("../data/clean/df_custcountry.csv")
 df2["TimePeriod"] = 15
 
 df3 = pd.DataFrame(pipe.predict(df2))
-df3 = df3.rename(columns={0: "AvgQuantity", 1: "AvgUnitPrice", 2: "AvgRevenue", 3: "TotalQuantity", 4: "TotalRevenue"})
+df3 = df3.rename(
+    columns={
+        0: "AvgQuantity",
+        1: "AvgUnitPrice",
+        2: "AvgRevenue",
+        3: "TotalQuantity",
+        4: "TotalRevenue",
+    }
+)
 
 df4 = pd.concat([df2, df3], axis=1)
 

@@ -47,6 +47,7 @@ nlp = spacy.load("en_core_web_lg")
 
 #%%
 
+# read the stock data
 df1 = pd.read_csv("../data/clean/stock_data.csv")
 
 # %%
@@ -55,6 +56,7 @@ df1.dtypes
 
 # %%
 
+# initialize the dependent and independent features
 cols = [
     "StockCode",
     "TimePeriod",
@@ -67,6 +69,7 @@ y
 
 # %%
 
+# impute missing values and count vectorize textual columns
 vocab_desc = list(set(" ".join(df1.Description).split(" ")))
 vocab_desc = [vocab.lower() for vocab in vocab_desc]
 vocab_desc = set(vocab_desc)
@@ -83,26 +86,26 @@ vect_desc = CountVectorizer(tokenizer=lambda x: [x], vocabulary=vocab_desc)
 
 pipe_desc = make_pipeline(vect_desc)
 
+# create column transformer
+
 ct = make_column_transformer(
     (pipe_desc, "Description"),
     (
         imp_ohe,
-        [
-            "StockCode"
-        ],
+        ["StockCode"],
     ),
     (
         imp_median_scal,
-        [
-            "TimePeriod"
-        ],
+        ["TimePeriod"],
     ),
     remainder="passthrough",
 )
 
 # %%----------------------------------------------------------------
-ct.fit_transform(X)
 
+# fit a linear regression model
+
+ct.fit_transform(X)
 
 
 # %%
@@ -113,36 +116,59 @@ pipe.score(X, y)
 
 # %%
 
+# predict the stock sales for the subsequent periods
+
 df2 = pd.read_csv("../data/clean/df_stockdesc.csv")
 df2["TimePeriod"] = 13
 
 df3 = pd.DataFrame(pipe.predict(df2))
-df3 = df3.rename(columns={0: "AvgQuantity", 1: "AvgUnitPrice", 2: "AvgRevenue", 3: "TotalQuantity", 4: "TotalRevenue"})
+df3 = df3.rename(
+    columns={
+        0: "AvgQuantity",
+        1: "AvgUnitPrice",
+        2: "AvgRevenue",
+        3: "TotalQuantity",
+        4: "TotalRevenue",
+    }
+)
 
 df4 = pd.concat([df2, df3], axis=1)
 
 df_withPred = pd.concat([df1, df4])
 
 
-
-
 df2 = pd.read_csv("../data/clean/df_stockdesc.csv")
 df2["TimePeriod"] = 14
 
 df3 = pd.DataFrame(pipe.predict(df2))
-df3 = df3.rename(columns={0: "AvgQuantity", 1: "AvgUnitPrice", 2: "AvgRevenue", 3: "TotalQuantity", 4: "TotalRevenue"})
+df3 = df3.rename(
+    columns={
+        0: "AvgQuantity",
+        1: "AvgUnitPrice",
+        2: "AvgRevenue",
+        3: "TotalQuantity",
+        4: "TotalRevenue",
+    }
+)
 
 df4 = pd.concat([df2, df3], axis=1)
 
 df_withPred = pd.concat([df_withPred, df4])
 
 
-
 df2 = pd.read_csv("../data/clean/df_stockdesc.csv")
 df2["TimePeriod"] = 15
 
 df3 = pd.DataFrame(pipe.predict(df2))
-df3 = df3.rename(columns={0: "AvgQuantity", 1: "AvgUnitPrice", 2: "AvgRevenue", 3: "TotalQuantity", 4: "TotalRevenue"})
+df3 = df3.rename(
+    columns={
+        0: "AvgQuantity",
+        1: "AvgUnitPrice",
+        2: "AvgRevenue",
+        3: "TotalQuantity",
+        4: "TotalRevenue",
+    }
+)
 
 df4 = pd.concat([df2, df3], axis=1)
 
